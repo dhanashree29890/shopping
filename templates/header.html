@@ -57,7 +57,7 @@ https://templatemo.com/tm-546-sixteen-clothing
                 </a>
               </li> 
               <li class="nav-item">
-                <a class="nav-link" href="{% url 'products' %}">Our Products</a>
+                <a class="nav-link" href="{% url 'view_products' %}">Our Products</a>
               </li>
               <li class="nav-item">
                 <a class="nav-link" href="{% url 'about' %}">About Us</a>
@@ -65,9 +65,25 @@ https://templatemo.com/tm-546-sixteen-clothing
               <li class="nav-item">
                 <a class="nav-link" href="{% url 'contact' %}">Contact Us</a>
               </li>
+              
+              {% if user.is_authenticated %}
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'logout' %}">{{user.email}} Logout</a>
+              
+              </li>
+              {% if user.is_admin %}
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'products:manage_products' user.id %}">Manage Products</a>
+              
+              </li>
+              {% endif %}
+              {% else %}
               <li class="nav-item">
                 <a class="nav-link" href="{% url 'login' %}">Login</a>
+              
               </li>
+              {% endif %}
+
               <li class="nav-item">
                 <a class="nav-link" href="{% url 'cart' request.session.userip %}">
                   <i class="fa fa-shopping-cart"></i>

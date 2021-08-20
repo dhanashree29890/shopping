@@ -36,6 +36,7 @@
             <div class="filters-content">
                 <div class="row grid">
                     {% for prod in products %}
+                    {% if prod.is_active %}
                     <div class="col-lg-4 col-md-4 all des">
                       <div class="product-item">
                         <a href="#"><img src="{{prod.img.url}}" %} alt=""></a>
@@ -45,17 +46,11 @@
                           <p>{{prod.description}}</p>
                           <a href="{% url 'buynow' prod.id %}"><button>Buy now</button></a>
                           <a href="{% url 'addtocart' prod.id %}"><button>Add to cart</button></a>
-                          <!--<ul class="stars">
-                            <li><i class="fa fa-star"></i></li>
-                            <li><i class="fa fa-star"></i></li>
-                            <li><i class="fa fa-star"></i></li>
-                            <li><i class="fa fa-star"></i></li>
-                            <li><i class="fa fa-star"></i></li>
-                          </ul>
-                          <span>Reviews (12)</span>-->
+                         
                         </div>
                       </div>
                     </div>
+                    {% endif %}
                   {% endfor %}  
                   </div>
                 </div>

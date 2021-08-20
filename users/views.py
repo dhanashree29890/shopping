@@ -1,55 +1,81 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth.models import User, auth
+from django.urls import reverse
+
+from django.http import HttpResponseRedirect
 from django.contrib import messages
 from django.conf import settings
 from django.core.mail import send_mail
+import requests
+from django.contrib.auth import get_user_model, login, logout, authenticate
 
-
+User = get_user_model()
 # Create your views here.
 
-def logout(request):
-    auth.logout(request)
+
+def user_logout(request):
+    logout(request)
+
+    try:
+        del request.session["jwt"]
+
+    except:
+        pass
     return redirect("/")
 
-def login(request):
-    if(request.method == 'POST'):
-        username = request.POST['username']
-        password = request.POST['password']
-        user = auth.authenticate(username=username,password=password)
+
+def user_login(request):
+    if request.method == "POST":
+        email = request.POST["email"]
+        password = request.POST["password"]
+        # is_admin = request.POST["is_admin"]
+        user = authenticate(email=email, password=password)
         print("trying login")
-        
+
         if user is not None:
-            auth.login(request,user)
-            return redirect('/')
+            login(request, user)
+            resp = requests.post(
+                "http://127.0.0.1:8000/api/token/",
+                data={"email": email, "password": password},
+            )
+            jwt_token = resp.json()["access"]
+            request.session["jwt"] = jwt_token
+            seller = User.objects.get(email=email, is_admin=True)
+            print(request.session["jwt"])
+            if seller:
+                return redirect("/products/manage_products/" + str(seller.id))
+
+            else:
+                return redirect("/", {user: user})
         else:
             messages.info(request, "invalid credentials")
             return redirect("login")
     else:
-        return render(request,"login.html")
-def register(request):
-    if(request.method == 'POST'):
-        first_name = request.POST['first_name']
-        last_name = request.POST['last_name']
-        username = request.POST['username']
-        email = request.POST['email']
-        password1 = request.POST['password1']
-        password2 = request.POST['password2']
+        return render(request, "login.html")
 
-        if(password1 != password2):
-            messages.info(request,'password mismatch') 
-            return redirect('register')   
-        elif User.objects.filter(username=username).exists():
-            messages.info(request,"user exists")
-            return redirect('register')
+
+def register(request):
+    if request.method == "POST":
+
+        email = request.POST["email"]
+        password1 = request.POST["password1"]
+        password2 = request.POST["password2"]
+        is_admin = request.POST["is_admin"]
+        if password1 != password2:
+            messages.info(request, "password mismatch")
+            return redirect("register")
         elif User.objects.filter(email=email).exists():
-            messages.info(request,'email exists')
-            return redirect('register')
-            
-        else: 
-            user= User.objects.create_user(username=username, password=password1,email=email, first_name=first_name,last_name=last_name)
+            print("email exists")
+            messages.info(request, "email exists")
+            return redirect("register")
+
+        else:
+            user = User.objects.create_user(
+                password=password1, email=email, is_admin=is_admin
+            )
             user.save()
-            messages.info(request,'user created')
-            return redirect('login')    
-        
+
+            messages.info(request, "user created")
+            return redirect("login")
+
     else:
-        return render(request, 'register.html')
+        return render(request, "register.html")

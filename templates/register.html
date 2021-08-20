@@ -8,12 +8,14 @@
     <div class="container">
         <form action='register' method='post'>
             {% csrf_token %}
-            FirstName: <input type="text" name="first_name" placeholder="Firstname"><br>
-            LastName: <input type="text" name="last_name" placeholder="Lastname"><br>
-            UserName: <input type="text" name="username" placeholder="Username"><br>
+            
             Email: <input type="email" name="email" placeholder="abc@xyz.com"><br>
             Password: <input type="password" name="password1" placeholder="Password"><br>
             Password: <input type="password" name="password2" placeholder="Confirm password"><br>
+            Is_Admin: <select name='is_admin'>
+                <option value=True >Seller</option>
+                <option selected value=False>Buyer</option>
+            </select>
             <button type="submit" name="Sumbit">Submit </button>
     
         </form>

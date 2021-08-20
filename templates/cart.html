@@ -5,16 +5,80 @@
 <h6>Hello, {{ request.session.userip }}</h6>
 
 {% for prod in products%}
-
-<div>
-    <span> </span>
-</div>
+<div class="row">
+    <div class="col-lg-3 col-md-3 all des product-item">
+        <a href="#"><img width='1rem' src="{{prod.product.img.url}}" alt=""></a>
+        <div class="down-content">
+            <a href="#">
+                <h4>{{prod.product.name}}</h4>
+                
+            </a>
+            <h6 id='id_cartitem{{prod.product.id}}'>{{prod.id}}</h6>
+            <h4 class='cost' id='id_cost{{prod.product.id}}'>{{prod.product.cost}}</h4>
+            <h5 style='color:red' class='dec'  id='id_dec{{prod.product.id}}'>-</h5>
+            <h5 class='quant' style='color:white' id='id_quant{{prod.product.id}}'>{{prod.quantity}}</h5>
+            <h5 style='color:blue' class='inc' id='id_inc{{prod.product.id}}'>+</h5>
+            
+        </div>
     </div>
 </div>
 
 {%endfor%}
-
-
+<h6 id="total"></h6>
+<!-- <a href="#"><button>Pay now</button></a> -->
 
 
 {% include "footer.html"%}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+    
+    $(document).ready(function () {
+        totcost = 0
+         $(".quant").each(function (index, element) {
+            target = this.id.slice(8)
+            quantity= parseInt(element.textContent)
+            
+            cost = $("#id_cost"+target).text()
+            
+            item_tot_cost = parseInt(quantity) * parseFloat(cost);
+            totcost = totcost + item_tot_cost
+            $("#total").text(totcost)
+            
+        });
+        
+        function updatequantity(prod_id,change,action,cartitem)
+        {
+            $.ajax({
+                url: "{% url 'ajax_url' %}",
+                data: {
+                    'prod_id': prod_id,
+                    'change': change,
+                    'action':action,
+                    'cartitem':cartitem
+                },
+                success: function (data) {
+                    console.log("quantity updated")
+                    
+                }
+            });
+        }
+       $(".inc").click(function () {
+           target = this.id.slice(6)
+           cartitem =  $('#id_cartitem' + target).text();
+           alert(cartitem)
+           val = $('#id_quant'+target).html();
+           newval = parseInt(val)+1
+           $('#id_quant' + target).html(newval)
+           updatequantity(target, newval,'add',cartitem)
+        })
+        $(".dec").click(function () {
+            target = this.id.slice(6)
+            cartitem = $('#id_cartitem' + target).textContent;
+            
+            val = $('#id_quant' + target).html();
+            newval = parseInt(val) - 1
+            $('#id_quant' + target).html(newval)
+            updatequantity(target ,newval,'sub',cartitem)
+        })
+    });
+</script>
