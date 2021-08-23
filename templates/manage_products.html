@@ -12,7 +12,7 @@
         <div class="row">
           <div class="col-md-12">
             <div class="text-content">
-              <h4>Welcome {{user.email}}</h4>
+              <h4>Welcome hello {{user.email}}</h4>
               
             </div>
           </div>
@@ -53,7 +53,8 @@
                   <h4>Inventory: {{prod.quantity}}</h4>
                   <h5 style="color: brown;">Active:{{prod.is_active}}</h5>
                   <a href='/products/delete_prod/{{prod.id}}/{{user.id}}'><button>Delete</button></a>
-                  <a href='/products/update_prod/{{prod.id}}'><button>Update</button></a>
+                  <!-- <a href='/products/update_prod/{{prod.id}}'><button>Update</button></a> -->
+                  <a href='http://127.0.0.1:8000/api/update/{{prod.id}}'><button>Update</button></a>
           
                 </div>
               </div>

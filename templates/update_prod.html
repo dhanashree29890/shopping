@@ -1,5 +1,5 @@
 {% include "header.html" %}
-
+{% load rest_framework %}
     {% block title %}<title>Products Page</title>{% endblock %}
     <!-- Page Content -->
     <!-- Banner Starts Here -->
@@ -23,17 +23,16 @@
     <div class="products">
       <div class="container">
         <div class="row">
-          <div>Update product</div>
-          <form action="" method="POST" enctype="multipart/form-data">
+          <div><h1>Update product</h1></div>
           
+          <form action="{% url 'update' prod.id %}" enctype="multipart/form-data" method="POST">
             {% csrf_token %}
-          
-            {{ form.as_p }}
-            
-            <input id="submit" class="btn" type="submit"><br>
-          
-          
+            {% render_form serializer %}
+
+           
+            <input type="submit" value="Save">
           </form>
+          
           </div>
           
         

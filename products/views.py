@@ -3,6 +3,7 @@ from .models import Products
 import requests
 from django import forms
 from django.contrib import messages
+from api.serializers import ProductUpdateSerializer
 
 
 class ProductForm(forms.ModelForm):
@@ -18,6 +19,7 @@ def delete_prod(request, id, seller_id):
     resp = requests.delete(
         address, headers={"Authorization": "Bearer " + request.session["jwt"]}
     ).text
+    print(resp)
     return redirect("/products/manage_products/" + str(seller_id))
 
 
@@ -29,26 +31,25 @@ def update_prod(request, id):
     prod = requests.get(
         address, headers={"Authorization": "Bearer " + request.session["jwt"]}
     ).json()
-
+    # product = Products.objects.get(id=id)
     seller = prod["seller"]
-    print(prod)
-    if request.method == "POST":
-        form = ProductForm(request.POST, request.FILES or None)
 
+    if request.method == "POST":
+        form = ProductForm(request.POST, request.FILES or None, instance=prod)
         if form.is_valid():
-            print(form.cleaned_data["is_active"])
+            print("trying to see form's img", form.cleaned_data["img"])
             resp = requests.post(
                 "http://127.0.0.1:8000/api/update/" + str(id),
-                files={"img": request.FILES["img"]},
+                files={"img": form.cleaned_data["img"]},  # request.FILES["img"]},
                 headers={"Authorization": "Bearer " + request.session["jwt"]},
                 data=form.data,
             )
-            print(resp)
+            # print(resp)
             return redirect("/products/manage_products/" + str(seller))
         else:
             return redirect("/products/manage_products/" + str(seller))
     else:
-        form = ProductForm(initial=prod)
+        form = ProductForm(instance=prod)
         # instance={
         #     "name": prod["name"],
         #     "img": prod["img"],
@@ -59,7 +60,7 @@ def update_prod(request, id):
 
         # }prod)
 
-    return render(request, "update_prod.html", {"prod": prod, "form": form})
+    return render(request, "update_prod.html", {"prod": prod})  # , "form": form})
 
 
 def manage_products(request, id):
@@ -83,7 +84,7 @@ def manage_products(request, id):
     myProds = requests.get(
         address, headers={"Authorization": "Bearer " + request.session["jwt"]}
     ).json()
-
+    # print(myProds)
     return render(
         request, "manage_products.html", {"products": myProds, "form": myform}
     )

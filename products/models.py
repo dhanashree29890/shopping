@@ -58,7 +58,7 @@ def auto_delete_file_on_change(sender, instance, **kwargs):
         print("returning now 1")
     try:
         old_img = sender.objects.get(pk=instance.pk).img
-        print(old_img)
+        print("we are in signal", old_img)
     except sender.DoesNotExist:
         print("returning now 2")
         return False
@@ -66,6 +66,8 @@ def auto_delete_file_on_change(sender, instance, **kwargs):
         print("returning now 3")
         return
     new_img = instance.img
+
+    print("new img is", new_img)
     if not old_img == new_img:
         print("we are inside pre save")
         if os.path.isfile(old_img.path):
